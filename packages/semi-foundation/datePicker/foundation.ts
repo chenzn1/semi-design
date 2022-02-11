@@ -157,6 +157,7 @@ export interface DatePickerFoundationProps extends ElementProps, RenderProps, Ev
     dateFnsLocale?: any;
     localeCode?: string;
     rangeSeparator?: string;
+    inlineInput?: boolean;
 }
 
 export interface DatePickerFoundationState {

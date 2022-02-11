@@ -15,6 +15,7 @@ import BaseComponent, { BaseProps } from '../_base/baseComponent';
 import Input from '../input/index';
 import { IconCalendar, IconCalendarClock, IconClear } from '@douyinfe/semi-icons';
 import { BaseValueType, ValueType } from '@douyinfe/semi-foundation/datePicker/foundation';
+import get from 'lodash/get';
 
 export interface DateInputProps extends DateInputFoundationProps, BaseProps {
     insetLabel?: React.ReactNode;
@@ -279,7 +280,61 @@ export default class DateInput extends BaseComponent<DateInputProps, {}> {
         );
     }
 
-    render() {
+    handleInlineInputChange = (options: { value: string, inlineInputValue: any, event: React.ChangeEvent, valuePath: string }) => {
+        this.foundation.handleInlineInputChange(options);
+    };
+
+    renderInputInline() {
+        const { type, onDateFocus, onTimeFocus, value, inputValue, prefixCls } = this.props;
+
+        const _isRangeType = type.includes('Range');
+        const inlineInputValue = this.foundation.getInlineInputValue({ value, inputValue });
+
+        const inlineInputWrapperCls = cls({
+            [`${prefixCls}-inline-input-wrapper`]: true,
+        });
+        const separatorCls = `${prefixCls}-inline-input-separator`;
+    
+        return (
+            <div className={inlineInputWrapperCls} x-type={type}>
+                <InlineDateInput
+                    inlineInputValue={inlineInputValue}
+                    valuePath={"monthLeft.dateInput"}
+                    onDateFocus={onDateFocus}
+                    onDateChange={this.handleInlineInputChange}
+                />
+                <InlineTimeInput
+                    type={type}
+                    inlineInputValue={inlineInputValue}
+                    valuePath={"monthLeft.timeInput"}
+                    onTimeFocus={onTimeFocus}
+                    onTimeChange={this.handleInlineInputChange} 
+                />
+                {
+                    _isRangeType && (
+                        <>
+                            <div className={separatorCls}>-</div>
+                            <InlineDateInput
+                                inlineInputValue={inlineInputValue}
+                                valuePath={"monthRight.dateInput"}
+                                onDateFocus={onDateFocus}
+                                onDateChange={this.handleInlineInputChange}
+                            />
+                            <InlineTimeInput
+                                type={type}
+                                inlineInputValue={inlineInputValue}
+                                valuePath={"monthRight.timeInput"}
+                                onTimeFocus={onTimeFocus}
+                                onTimeChange={this.handleInlineInputChange} 
+                            />
+                        </>
+                    )
+                }
+            </div>
+        );
+    }
+
+    renderInputOut() {
         const {
             placeholder,
             type,
@@ -355,4 +410,39 @@ export default class DateInput extends BaseComponent<DateInputProps, {}> {
             />
         );
     }
+
+    render() {
+        const { inlineInput } = this.props;
+        return inlineInput ? this.renderInputInline() : this.renderInputOut();
+    }
+}
+
+
+function InlineDateInput({ inlineInputValue, valuePath, onDateFocus, onDateChange }) {
+    const value = get(inlineInputValue, valuePath);
+    const handleTimeChange = (v, event) => {
+        onDateChange({
+            value: v,
+            event,
+            inlineInputValue,
+            valuePath,
+        });
+    };
+    return (
+        <Input value={value} onChange={handleTimeChange} onFocus={onDateFocus} placeholder={strings.FORMAT_FULL_DATE} />
+    );
+}
+
+function InlineTimeInput({ inlineInputValue, valuePath, type, onTimeFocus, onTimeChange }) {
+    const value = get(inlineInputValue, valuePath);
+    const _isTimeType = type.includes('Time');
+    const handleTimeChange = (v, event) => {
+        onTimeChange({
+            value: v,
+            event,
+            inlineInputValue,
+            valuePath,
+        });
+    };
+    return _isTimeType ? <Input value={value} onChange={handleTimeChange} onFocus={onTimeFocus} placeholder={strings.FORMAT_TIME_PICKER} /> : null;
 }

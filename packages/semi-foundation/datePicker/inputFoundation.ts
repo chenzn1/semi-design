@@ -3,6 +3,8 @@ import BaseFoundation, { DefaultAdapter } from '../base/foundation';
 import { BaseValueType, ValidateStatus, ValueType } from './foundation';
 import { formatDateValues } from './_utils/formatter';
 import { getDefaultFormatTokenByType } from './_utils/getDefaultFormatToken';
+import isNullOrUndefined from '../utils/isNullOrUndefined';
+import { cloneDeep, set } from 'lodash';
 
 const KEY_CODE_ENTER = 'Enter';
 const KEY_CODE_TAB = 'Tab';
@@ -10,7 +12,17 @@ const KEY_CODE_TAB = 'Tab';
 
 export type Type = 'date' | 'dateRange' | 'year' | 'month' | 'dateTime' | 'dateTimeRange';
 export type RangeType = 'rangeStart' | 'rangeEnd';
-
+type PanelType = 'left' | 'right';
+export interface InlineInputValue {
+    monthLeft: {
+        dateInput: string;
+        timeInput: string;
+    },
+    monthRight: {
+        dateInput: string;
+        timeInput: string;
+    }
+}
 export interface DateInputEventHandlerProps {
     onClick?: (e: any) => void;
     onChange?: (value: string, e: any) => void;
@@ -40,6 +52,8 @@ export interface DateInputFoundationProps extends DateInputElementProps, DateInp
     validateStatus?: ValidateStatus;
     prefixCls?: string;
     rangeSeparator?: string;
+    panelType?: PanelType;
+    inlineInput: boolean;
 }
 
 export interface DateInputAdapter extends DefaultAdapter {
@@ -134,5 +148,82 @@ export default class InputFoundation extends BaseFoundation<DateInputAdapter> {
                 break;
         }
         return text;
+    }
+
+    getInlineInputValue({ value, inputValue } : { value: any; inputValue: string }) {
+        const { type, rangeSeparator } = this._adapter.getProps();
+
+        let inputValueAllInOne = '';
+        if (!isNullOrUndefined(inputValue)) {
+            inputValueAllInOne = inputValue;
+        } else {
+            inputValueAllInOne = this.formatShowText(value);
+        }
+
+        const inlineInputValue = {
+            monthLeft: {
+                dateInput: '',
+                timeInput: '',
+            },
+            monthRight: {
+                dateInput: '',
+                timeInput: '',
+            }
+        };
+        let leftDateInput, leftTimeInput, rightDateInput, rightTimeInput;
+
+        switch (type) {
+            case 'date':
+            case 'month':
+                inlineInputValue.monthLeft.dateInput = inputValueAllInOne;
+                break;
+            case 'dateRange':
+                [leftDateInput, rightDateInput] = inputValueAllInOne.split(rangeSeparator);
+                inlineInputValue.monthLeft.dateInput = leftDateInput;
+                inlineInputValue.monthRight.dateInput = rightDateInput;
+                break;
+            case 'dateTime':
+                [leftDateInput, leftTimeInput] = inputValueAllInOne.split(' ');
+                inlineInputValue.monthLeft.dateInput = leftDateInput;
+                inlineInputValue.monthLeft.timeInput = leftTimeInput;
+                break;
+            case 'dateTimeRange':
+                [leftDateInput, leftTimeInput, rightDateInput, rightTimeInput] = inputValueAllInOne.split(rangeSeparator).join(' ').split(' ');
+                inlineInputValue.monthLeft.dateInput = leftDateInput;
+                inlineInputValue.monthLeft.timeInput = leftTimeInput;
+                inlineInputValue.monthRight.dateInput = rightDateInput;
+                inlineInputValue.monthRight.timeInput = rightTimeInput;
+                break;
+        }
+        return inlineInputValue;
+    }
+
+    concatInlineInputValue({ inlineInputValue }: { inlineInputValue: InlineInputValue }) {
+        const { type, rangeSeparator } = this._adapter.getProps();
+        let inputValue = '';
+
+        switch (type) {
+            case 'date':
+            case 'month':
+                inputValue = inlineInputValue.monthLeft.dateInput;
+                break;
+            case 'dateRange':
+                break;
+            case 'dateTime':
+                break;
+            case 'dateTimeRange':
+                break;
+        }
+
+        return inputValue;
+    }
+
+    handleInlineInputChange(options: { value: string, inlineInputValue: InlineInputValue, event: React.ChangeEvent, valuePath: string }) {
+        const { type, rangeSeparator } = this._adapter.getProps();
+        const { value, valuePath, inlineInputValue, event } = options;
+        const newInlineInputValue = set(cloneDeep(inlineInputValue), valuePath, value);
+        const newInputValue = this.concatInlineInputValue({ inlineInputValue: newInlineInputValue });
+
+        this.handleChange(newInputValue, event);
     }
 }

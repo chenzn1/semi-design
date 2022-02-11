@@ -86,6 +86,7 @@ export interface MonthsGridFoundationProps extends MonthsGridElementProps {
     isAnotherPanelHasOpened?: (currentRangeInput: 'rangeStart' | 'rangeEnd') => boolean;
     focusRecordsRef?: any;
     triggerRender?: (props: Record<string, any>) => any;
+    inlineInput: boolean;
 }
 
 export interface MonthInfo {

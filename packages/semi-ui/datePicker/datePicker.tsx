@@ -159,6 +159,7 @@ export default class DatePicker extends BaseComponent<DatePickerProps, DatePicke
         autoSwitchDate: true,
         syncSwitchMonth: false,
         rangeSeparator: strings.DEFAULT_SEPARATOR_RANGE,
+        inlineInput: false
     };
 
     triggerElRef: React.MutableRefObject<HTMLElement>;
@@ -183,7 +184,7 @@ export default class DatePicker extends BaseComponent<DatePickerProps, DatePicke
             prevTimeZone: null,
             motionEnd: false, // Monitor if popover animation ends
             rangeInputFocus: undefined, // Optional'rangeStart ',' rangeEnd ', false
-            autofocus: props.autoFocus || (this.isRangeType(props.type, props.triggerRender) && (props.open || props.defaultOpen))
+            autofocus: props.autoFocus || (this.isRangeType(props.type, props.triggerRender) && (props.open || props.defaultOpen)),
         };
 
         this.adapter.setCache('cachedSelectedValue', null);
@@ -375,9 +376,10 @@ export default class DatePicker extends BaseComponent<DatePickerProps, DatePicke
             syncSwitchMonth,
             onPanelChange,
             timeZone,
-            triggerRender
+            triggerRender,
+            inlineInput
         } = this.props;
-        const { value, cachedSelectedValue, motionEnd, rangeInputFocus } = this.state;
+        const { value, cachedSelectedValue, motionEnd, rangeInputFocus, inputValue } = this.state;
 
         // const cachedSelectedValue = this.adapter.getCache('cachedSelectedValue');
 
@@ -422,6 +424,7 @@ export default class DatePicker extends BaseComponent<DatePickerProps, DatePicke
                 timeZone={timeZone}
                 focusRecordsRef={this.focusRecordsRef}
                 triggerRender={triggerRender}
+                inlineInput={inlineInput}
             />
         );
     }
@@ -455,6 +458,15 @@ export default class DatePicker extends BaseComponent<DatePickerProps, DatePicke
             return this.focusRecordsRef.current.rangeStart;
         }
     };
+    handleInlineDateFocus = () => {
+        this.monthGrid.current.foundation.showDatePanel(strings.PANEL_TYPE_LEFT);
+        this.monthGrid.current.foundation.showDatePanel(strings.PANEL_TYPE_RIGHT);
+    }
+
+    handleInlineTimeFocus = () => {
+        this.monthGrid.current.foundation.showTimePicker(strings.PANEL_TYPE_LEFT);
+        this.monthGrid.current.foundation.showTimePicker(strings.PANEL_TYPE_RIGHT);
+    }
 
     renderInner(extraProps?: Partial<DatePickerProps>) {
         const {
@@ -563,7 +575,8 @@ export default class DatePicker extends BaseComponent<DatePickerProps, DatePicke
     };
 
     renderPanel = (locale: Locale['DatePicker'], localeCode: string, dateFnsLocale: Locale['dateFnsLocale']) => {
-        const { dropdownClassName, dropdownStyle, density, topSlot, bottomSlot } = this.props;
+        const { dropdownClassName, dropdownStyle, density, topSlot, bottomSlot, inlineInput, type, format, rangeSeparator } = this.props;
+        const { inputValue, value } = this.state;
         const wrapCls = classnames(
             cssClasses.PREFIX,
             {
@@ -573,9 +586,22 @@ export default class DatePicker extends BaseComponent<DatePickerProps, DatePicke
             dropdownClassName
         );
 
+        const inlineInputProps = {
+            type,
+            onDateFocus: this.handleInlineDateFocus,
+            onTimeFocus: this.handleInlineTimeFocus,
+            value,
+            inputValue,
+            dateFnsLocale,
+            format,
+            rangeSeparator
+        };
+        
+        // TODO:
         return (
             <div ref={this.panelRef} className={wrapCls} style={dropdownStyle}>
                 {topSlot && <div className={`${cssClasses.PREFIX}-topSlot`}>{topSlot}</div>}
+                {inlineInput && <DateInput {...inlineInputProps} inlineInput={true} />}
                 {this.adapter.typeIsYearOrMonth() ?
                     this.renderYearMonthPanel(locale, localeCode) :
                     this.renderMonthGrid(locale, localeCode, dateFnsLocale)}

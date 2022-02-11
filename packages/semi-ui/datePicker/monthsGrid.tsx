@@ -308,7 +308,7 @@ export default class MonthsGrid extends BaseComponent<MonthsGridProps, MonthsGri
                  * See packages/semi-foundation/scrollList/itemF oundation.js initWheelList function
                  */
 
-                style.minHeight = currentPanelHeight ? currentPanelHeight : this.calcScrollListHeight();
+                // style.minHeight = currentPanelHeight ? currentPanelHeight : this.calcScrollListHeight();
             }
         } else if (
             this.props.type !== 'year' &&
@@ -318,8 +318,10 @@ export default class MonthsGrid extends BaseComponent<MonthsGridProps, MonthsGri
             monthCls = classnames(monthCls, `${prefixCls}-yam-showing`);
         }
 
+        const _isDatePanelOpen = !(isYearPickerOpen || isTimePickerOpen);
+
         return (
-            <div className={monthCls} key={panelType} style={style}>
+            <div className={monthCls} key={panelType} style={style} x-open-type={_isDatePanelOpen ? 'date' : isYearPickerOpen ? 'year' : 'time'}>
                 {yearAndMonthLayer}
                 {timePickerLayer}
                 {/* {isYearPickerOpen || isTimePickerOpen ? null : panelContent} */}
@@ -534,9 +536,9 @@ export default class MonthsGrid extends BaseComponent<MonthsGridProps, MonthsGri
 
     renderSwitch(panelType: PanelType) {
         const { rangeStart, rangeEnd, monthLeft, monthRight } = this.state;
-        const { type, locale, disabledTimePicker, density, dateFnsLocale } = this.props;
-        // Type: date, dateRange, year, month, no rendering required
-        if (!type.includes('Time')) {
+        const { type, locale, disabledTimePicker, density, dateFnsLocale, inlineInput } = this.props;
+        // Type: date, dateRange, year, month, inline input no rendering required
+        if (!type.includes('Time') || inlineInput) {
             return null;
         }
 
@@ -584,7 +586,7 @@ export default class MonthsGrid extends BaseComponent<MonthsGridProps, MonthsGri
                     {showSwithIcon && <IconCalendar />}
                     <span className={textCls}>{dateText || monthText}</span>
                 </div>
-                <div className={timeCls} onClick={e => this.foundation.showTimePicker(panelType, true)}>
+                <div className={timeCls} onClick={e => this.foundation.showTimePicker(panelType)}>
                     {showSwithIcon && <IconClock />}
                     <span className={textCls}>{timeText}</span>
                 </div>
@@ -594,7 +596,7 @@ export default class MonthsGrid extends BaseComponent<MonthsGridProps, MonthsGri
 
     render() {
         const { monthLeft, monthRight } = this.state;
-        const { type } = this.props;
+        const { type, inlineInput } = this.props;
         const monthGridCls = classnames({
             [`${prefixCls }-month-grid`]: true,
         });
@@ -618,6 +620,7 @@ export default class MonthsGrid extends BaseComponent<MonthsGridProps, MonthsGri
                 className={monthGridCls}
                 x-type={type}
                 x-panel-yearandmonth-open-type={yearOpenType}
+                x-input={inlineInput ? "inPanel" : "outPanel"}
                 ref={current => this.cacheRefCurrent('monthGrid', current)}
             >
                 {content}

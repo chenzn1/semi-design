@@ -45,6 +45,16 @@ $module: #{$prefix}-datepicker;
             min-height: $height-datepicker_dateType_yamShowing_min;
         }
 
+        &[x-input=inPanel] {
+            .#{$module}-month-grid-left,
+            .#{$module}-month-grid-right {
+                &[x-open-type=year],
+                &[x-open-type=time] {
+                    min-height: 300px;
+                }
+            }
+        }
+
         // 年月选择返回主面板
         .#{$module}-yearmonth-header {
             background: $color-datepicker_header-bg-default;
@@ -73,7 +83,8 @@ $module: #{$prefix}-datepicker;
 
             &-header {
                 border-bottom: $width-datepicker-border solid $color-datepicker_border-bg-default;
-                padding: $spacing-datepicker_scrolllist_header-padding;
+                padding: 12px $spacing-datepicker_scrolllist_header-padding;
+                padding-bottom: 8px;
             }
 
             &-body {
@@ -169,7 +180,7 @@ $module: #{$prefix}-datepicker;
     &-tpk {
         position: absolute;
         top: 0;
-        height: $height-datepicker_timeType_tpk;
+        height: 300px;
         width: 100%;
         display: flex;
         flex-direction: column;
@@ -186,7 +197,7 @@ $module: #{$prefix}-datepicker;
         align-items: center;
         box-sizing: content-box;
         height: $width-datepicker_nav;
-        padding: $spacing-datepicker_navigation-paddingY $spacing-datepicker_navigation-paddingX;
+        padding: 8px $spacing-datepicker_navigation-paddingX;
 
         &-left,
         &-right {
@@ -579,6 +590,39 @@ $module: #{$prefix}-datepicker;
 
     .#{$prefix}-datepicker-input-readonly {
         cursor: pointer;
+    }
+
+    // TODO:
+    &-inline-input {
+        &-wrapper {
+            position: relative;
+            width: 252px;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: nowrap;
+            column-gap: 8px;
+            padding: 12px 16px;
+            padding-bottom: 0;
+
+            .#{$prefix}-input-wrapper {
+                flex: 1;
+                flex-shrink: 0;
+            }
+
+            &[x-type=dateRange],
+            &[x-type=dateTimeRange] {
+                width: 252px * 2 + 32px;
+            }
+        }
+
+        &-separator {
+            flex-grow: 0;
+            flex-shrink: 0;
+            height: 32px;
+            line-height: 32px;
+            padding: 0px 4px;
+            color: var(--semi-color-text-3);
+        }
     }
 
     &-range {
