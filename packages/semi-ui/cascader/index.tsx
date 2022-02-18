@@ -426,7 +426,7 @@ class Cascader extends BaseComponent<CascaderProps, CascaderState> {
                     });
                     realKeys = formatKeys;
                 }
-                const calRes = calcCheckedKeys(flatten(realKeys as string[]), keyEntities);
+                const calRes = calcCheckedKeys(flatten([...realKeys]), keyEntities);
                 const checkedKeys = new Set(calRes.checkedKeys);
                 const halfCheckedKeys = new Set(calRes.halfCheckedKeys);
                 // disableStrictly
