@@ -602,7 +602,7 @@ export default class Tooltip<P = Record<string, any>, S = Record<string, any>> e
 
             const shouldReverseTop = clientTop < wrapperRect.height + spacing && restClientBottom > wrapperRect.height + spacing;
             const shouldReverseLeft = clientLeft < wrapperRect.width + spacing && restClientRight > wrapperRect.width + spacing;
-            const sholdReverseBottom = restClientBottom < wrapperRect.height + spacing && clientTop > wrapperRect.height + spacing;
+            const shouldReverseBottom = restClientBottom < wrapperRect.height + spacing && clientTop > wrapperRect.height + spacing;
             const shouldReverseRight = restClientRight < wrapperRect.width + spacing && clientLeft > wrapperRect.width + spacing;
 
             const shouldReverseTopSide = restClientTop < wrapperRect.height && clientBottom > wrapperRect.height;
@@ -654,12 +654,12 @@ export default class Tooltip<P = Record<string, any>, S = Record<string, any>> e
                     }
                     break;
                 case 'bottom':
-                    if (sholdReverseBottom) {
+                    if (shouldReverseBottom) {
                         position = this._reversePos(position, true);
                     }
                     break;
                 case 'bottomLeft':
-                    if (sholdReverseBottom) {
+                    if (shouldReverseBottom) {
                         position = this._reversePos(position, true);
                     }
                     if (shouldReverseLeftSide && widthIsBigger) {
@@ -667,7 +667,7 @@ export default class Tooltip<P = Record<string, any>, S = Record<string, any>> e
                     }
                     break;
                 case 'bottomRight':
-                    if (sholdReverseBottom) {
+                    if (shouldReverseBottom) {
                         position = this._reversePos(position, true);
                     }
                     if (shouldReverseRightSide && widthIsBigger) {
